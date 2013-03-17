@@ -1,0 +1,27 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant::Config.run do |config|
+
+  # TeamCity build agent
+  config.vm.define :agent01 do |config|
+    config.vm.box = "lucid32"
+    config.vm.box_url = "http://files.vagrantup.com/lucid32.box"
+    #config.vm.box = "lucid64"
+    #config.vm.box_url = "http://files.vagrantup.com/lucid64.box"
+    config.vm.host_name = "agent01.local"
+    config.vm.customize ["modifyvm", :id, "--memory", 512]
+    config.vm.customize ["modifyvm", :id, "--name", "agent01"]
+    #config.vm.forward_port 80, 8080
+
+    config.vm.network :hostonly, "192.168.33.11"
+
+    config.vm.provision :puppet do |puppet|
+      puppet.module_path = "../modules"
+      puppet.manifests_path = "manifests"
+      puppet.manifest_file  = "agent.pp"
+      puppet.options = ["--verbose", "--debug"]
+    end
+  end
+end
+

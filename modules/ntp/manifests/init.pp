@@ -2,13 +2,23 @@
 class ntp (
   $servers = undef,
 ) {
+  case $::operatingsystem {
+    centos, redhat: {
+      $service_name = 'ntpd'
+      $conf_file = 'ntp.conf.el'
+    }
+    debian, ubuntu: {
+      $service_name = 'ntp'
+      $conf_file = 'ntp.conf.debian'
+    }
+  }
 
   package { 'ntp':
     ensure => installed,
   }
 
   service { 'ntp':
-    name       => 'ntp',
+    name       => $service_name,
     ensure     => running,
     enable     => true,
     subscribe  => File['ntp.conf'],
@@ -18,7 +28,7 @@ class ntp (
     path    => '/etc/ntp.conf',
     ensure  => file,
     require => Package['ntp'],
-    content => template("ntp/ntp.conf.erb");
+    content => template("ntp/${conf_file}");
   }
 }
 

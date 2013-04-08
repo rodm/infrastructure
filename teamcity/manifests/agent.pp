@@ -2,9 +2,18 @@
 $user = 'builder'
 $pkgs = [ 'unzip', 'xvfb', 'libxtst6', 'libxi6', 'libxrender1', 'libfontconfig1', 'subversion', 'cvs' ]
 $ntpserver = 'time.euro.apple.com'
+$serverUrl = 'http://192.168.2.119:8111/teamcity/'
 
-exec { "apt-get update":
-  command => '/usr/bin/apt-get update',
+case $::operatingsystem {
+  centos, redhat: {
+    $repository_update_cmd = '/usr/bin/yum makecache'
+  }
+  debian, ubuntu: {
+    $repository_update_cmd = '/usr/bin/apt-get update'
+  }
+}
+exec { "repository-update":
+  command => $::repository_update_cmd,
 }
 
 user { $user:
@@ -24,7 +33,7 @@ file { 'tools dir':
 
 package { $pkgs:
   ensure  => installed,
-  require => Exec['apt-get update']
+  require => Exec['repository-update']
 }
 
 class { 'ntp':
@@ -37,8 +46,8 @@ class { 'ssh':
 class { 'teamcity::agent':
   installdir => "/home/$::user/teamcity",
   user => $user,
-  jdkhome => "/home/$::user/teamcity/jdk1.6.0_41",
-  serverurl => 'http//teamcity:8111/teamcity',
+  jdkhome => "/home/$::user/tools/jdk1.6.0_41",
+  serverurl => $serverUrl,
 }
 
 java::install { '6u41':

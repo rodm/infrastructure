@@ -1,0 +1,35 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  # Every Vagrant virtual environment requires a box to build off of.
+  config.vm.box = "centos64"
+
+  # The url from where the 'config.vm.box' box will be fetched if it
+  # doesn't already exist on the user's system.
+  # config.vm.box_url = "http://domain.com/path/to/above.box"
+  config.vm.box_url = "http://puppet-vagrant-boxes.puppetlabs.com/centos-64-x64-vbox4210.box"
+
+  # Create a private network, which allows host-only access to the machine
+  # using a specific IP.
+  # config.vm.network :private_network, ip: "192.168.33.10"
+  config.vm.network :private_network, ip: "192.168.32.10"
+
+  config.vm.hostname = "oraclexe"
+
+  config.vm.provider :virtualbox do | vbox |
+    # Don't boot with headless mode
+    vbox.gui = true
+    vbox.name = "oraclexe"
+
+    # Use VBoxManage to customize the VM. For example to change memory:
+    vbox.customize ["modifyvm", :id, "--name", "oraclexe", "--cpus", "1", "--memory", "768" ]
+  end
+
+  config.vm.provision :shell do | shell |
+    shell.path = "scripts/install-oraclexe.sh"
+  end
+end

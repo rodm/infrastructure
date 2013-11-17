@@ -21,8 +21,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.hostname = "oraclexe"
 
   config.vm.provider :virtualbox do | vbox |
-    # Don't boot with headless mode
-    vbox.gui = true
+    # Boot in headless mode
+    vbox.gui = false
     vbox.name = "oraclexe"
 
     # Use VBoxManage to customize the VM. For example to change memory:

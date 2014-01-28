@@ -1,0 +1,10 @@
+connect localhost:10099
+batch
+
+/subsystem=web:write-attribute(name=instance-id,value="${jboss.node.name}")
+/subsystem=modcluster/mod-cluster-config=configuration:write-attribute(name=advertise-security-key,value="secret")
+#/subsystem=modcluster/mod-cluster-config=configuration:write-attribute(name=proxy-list,value="webserver.localdomain:6666")
+
+run-batch
+:reload
+

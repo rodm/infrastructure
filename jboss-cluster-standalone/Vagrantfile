@@ -1,0 +1,51 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+domain = 'localdomain'
+
+box = 'centos64'
+box_url = 'http://puppet-vagrant-boxes.puppetlabs.com/centos-64-x64-vbox4210.box'
+
+nodes = [
+  { :hostname => 'webserver',  :ip => '192.168.32.20' },
+  { :hostname => 'appserver1', :ip => '192.168.32.31', :ram => '2048' },
+  { :hostname => 'appserver2', :ip => '192.168.32.32', :ram => '2048' },
+  { :hostname => 'appserver3', :ip => '192.168.32.33', :ram => '2048' }
+]
+
+# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+  nodes.each do | node |
+    config.vm.define node[:hostname] do | node_config |
+      node_config.vm.box = box
+      node_config.vm.box_url = box_url
+
+      node_config.vm.hostname = node[:hostname] + '.' + domain
+      node_config.vm.network :private_network, ip: node[:ip]
+
+      memory = node[:ram] ? node[:ram] : 256
+      node_config.vm.provider :virtualbox do | vbox |
+        vbox.gui = false
+        vbox.customize ["modifyvm", :id, "--name", node[:hostname]]
+        vbox.customize ["modifyvm", :id, "--memory", memory.to_s]
+      end
+
+      node_config.vm.provider "vmware_fusion" do | vmware |
+        vmware.gui = false
+        vmware.vmx["memsize"] = memory.to_s
+      end
+
+      node_config.vm.provider "vmware_workstation" do | vmware |
+        vmware.gui = false
+        vmware.vmx["memsize"] = memory.to_s
+      end
+
+      node_config.vm.provision :shell do | shell |
+        shell.path = "scripts/setup.sh"
+      end
+    end
+  end
+end
